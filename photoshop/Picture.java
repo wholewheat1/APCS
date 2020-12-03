@@ -340,27 +340,93 @@ public class Picture {
 
 	/** mirror about a vertical midline, right to left */
 	public void mirrorRightToLeft() {
-		// TODO
+		Pixel leftPixel = null;
+		Pixel rightPixel = null;
+
+		int width = pixels[0].length;
+
+		for (int r = 0; r < pixels.length; r++) {
+			for (int c = 0; c < width / 2; c++) {
+				leftPixel = pixels[r][c];
+				rightPixel = pixels[r][(width - 1) - c];
+
+				leftPixel.setColor(rightPixel.getColor());
+			}
+		}
 	}
 
 	/** mirror about a horizontal midline, top to bottom */
 	public void mirrorHorizontal() {
-		// TODO
+		Pixel topPixel = null;
+		Pixel btmPixel = null;
+
+		int height = pixels.length;
+
+		for (int r = 0; r < pixels.length; r++) {
+			for (int c = 0; c < height / 2; c++) {
+				topPixel = pixels[r][c];
+				btmPixel = pixels[(height - 1) - r][c];
+
+				btmPixel.setColor(topPixel.getColor());
+			}
+		}
 	}
 
 	/** flip an image upside down about its bottom edge */
 	public void verticalFlip() {
-		// TODO
+		Pixel leftPixel = null;
+		Pixel rightPixel = null;
+		Pixel placeholder = null;
+		int width = pixels[0].length;
+
+		for (int r = 0; r < pixels.length; r++) {
+			for (int c = 0; c < width / 2; c++) {
+				leftPixel = pixels[r][c];
+				placeholder = pixels[0][0];
+				rightPixel = pixels[r][(width - 1) - c];
+				placeholder.setColor(rightPixel.getColor());
+				rightPixel.setColor(leftPixel.getColor());
+				leftPixel.setColor(placeholder.getColor());
+			}
+		}
 	}
 
 	/** fix roof on greek temple */
 	public void fixRoof() {
-		// TODO
+		mirrorVertical();
 	}
 
 	/** detect and mark edges in an image */
 	public void edgeDetection(int dist) {
-		// TODO
+		System.out.println(pixels.length);
+		for (int i = 0; i < pixels.length - 1; i++) {
+			for (int x = 0; x < pixels[i].length - 1; x++) {
+				int b = i + 1, a = x + 1;
+
+				double e = pixels[i][x].colorDistance(pixels[b][a].getColor());
+
+				if (e <= dist) {
+					pixels[i][x].setColor(255, 255, 255);
+				} else if (e > dist) {
+					pixels[i][x].setColor(0, 0, 0);
+				}
+
+			}
+			for (int t = 0; t < pixels[i].length - 1; t++) {
+				for (int x = 0; x < pixels.length - 1; x++) {
+					int b = i + 1, a = x + 1;
+
+					double f = pixels[x][i].colorDistance(pixels[a][b].getColor());
+
+					if (f <= dist) {
+						pixels[x][i].setColor(255, 255, 255);
+					} else if (f > dist) {
+						pixels[x][i].setColor(0, 0, 0);
+					}
+				}
+			}
+		}
+
 	}
 
 	/**
@@ -373,9 +439,9 @@ public class Picture {
 				int g = pixels[i][x].getGreen();
 				int b = pixels[i][x].getBlue();
 				System.out.println(r + ", " + g + ", " + b);
-				pixels[i][x].setRed(r);
-				pixels[i][x].setGreen(g);
-				pixels[i][x].setBlue(b);
+				pixels[i][x].setRed((r / span) * span);
+				pixels[i][x].setGreen((g / span) * span);
+				pixels[i][x].setBlue((b / span) * span);
 
 			}
 		}
@@ -386,7 +452,14 @@ public class Picture {
 	 * param Color
 	 */
 	public void chromakey(Picture other, Color color, int dist) {
-		// TODO
+		for (int i = 0; i < pixels.length; i++) {
+			for (int x = 0; x < pixels[i].length; x++) {
+				if (pixels[i][x].colorDistance(color) <= dist) {
+					pixels[i][x].setColor(other.pixels[i][x].getColor());
+				}
+
+			}
+		}
 	}
 
 	/** steganography encode (hide the message in msg in this picture) */
